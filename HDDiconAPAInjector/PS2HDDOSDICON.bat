@@ -5,10 +5,7 @@ set hdl_dump=hdl_dump\hdl_dump.exe
 if not exist hdl_dump\system.cnf call :makesystemcnf
 echo. > insertedGameList.txt
 
-for /f "tokens=1 delims= " %%a in ('!hdl_dump! query ^| findstr "formatted Playstation"') do set PS2HDD=%%a
-set PS2HDD=%PS2HDD:	=%
-::call :setPS2HDD
-
+call :setPS2HDD
 
 for /f "tokens=5 delims= " %%d in ('!hdl_dump! toc %PS2HDD% ^| findstr "PP."') do (
 set GAMEHDLTOC=%%d
@@ -41,12 +38,15 @@ goto :EOF
 
 :setPS2HDD
 for /f "tokens=1 delims= " %%a in ('!hdl_dump! query ^| findstr "formatted Playstation"') do set PS2HDD=%%a
-set PS2HDD=%PS2HDD:	=%
+::trim tab and trim spaces
+set PS2HDD=%PS2HDD:	=% 
+set PS2HDD=%PS2HDD: =%
+if "%PS2HDD%"=="=" (
 echo.
 echo. 		Local Hard Drive not Found, Please insert your PS2 IP
 echo.
-::if %errorlevel%==0 set /p "PS2HDD=insert PS2 IP: "
-
+	set /p "PS2HDD=insert PS2 IP: "
+)
 
 :removetmpfiles
 del /q hdl_dump\icon.sys hdl_dump\list.ico hdl_dump\system.cnf 
