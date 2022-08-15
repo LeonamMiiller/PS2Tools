@@ -7,6 +7,7 @@ echo. > insertedGameList.txt
 
 for /f "tokens=1 delims= " %%a in ('!hdl_dump! query ^| findstr "formatted Playstation"') do set PS2HDD=%%a
 set PS2HDD=%PS2HDD:	=%
+::call :setPS2HDD
 
 
 for /f "tokens=5 delims= " %%d in ('!hdl_dump! toc %PS2HDD% ^| findstr "PP."') do (
@@ -14,11 +15,10 @@ set GAMEHDLTOC=%%d
 
 	for /f "tokens=2 delims=." %%e in ("%%d") do (
 		set PS2CODE=%%e
+		set PS2CODE=!PS2CODE:~0,4!_!PS2CODE:~5,3!.!PS2CODE:~8,2!
 
-		for /f "delims== tokens=1,2" %%x in (Files\icons.ini) do (
+		for /f "delims== tokens=1,2" %%x in ('findstr !PS2CODE! Files\icons.ini') do (
 			set GAMEDBID=%%x
-			set GAMEDBID=!GAMEDBID:_=-!
-			set GAMEDBID=!GAMEDBID:.=!
 
 			if "!GAMEDBID!"=="!PS2CODE!" (
 				set GAMEICON=%%y 
@@ -28,8 +28,8 @@ set GAMEHDLTOC=%%d
 				copy /Y /V Files\ICNS\!GAMEICON! hdl_dump\list.ico > nul
 				call :makeiconsys "!GAMENAME!" "!GAMEDBID!" 
 				
-				echo !GAMENAME! !date! !time:~0,-3! >> insertedGameList.txt
-				echo Inserting !GAMENAME!...
+				echo !GAMENAME! - !PS2CODE! !date! !time:~0,-3! >> insertedGameList.txt
+				echo Inserting: !GAMENAME! - !PS2CODE!
 				!hdl_dump! modify_header %PS2HDD% "!GAMEHDLTOC!" > nul
 				echo Done!
 				
@@ -38,6 +38,15 @@ set GAMEHDLTOC=%%d
 	)
 )
 goto :EOF
+
+:setPS2HDD
+for /f "tokens=1 delims= " %%a in ('!hdl_dump! query ^| findstr "formatted Playstation"') do set PS2HDD=%%a
+set PS2HDD=%PS2HDD:	=%
+echo.
+echo. 		Local Hard Drive not Found, Please insert your PS2 IP
+echo.
+::if %errorlevel%==0 set /p "PS2HDD=insert PS2 IP: "
+
 
 :removetmpfiles
 del /q hdl_dump\icon.sys hdl_dump\list.ico hdl_dump\system.cnf 
