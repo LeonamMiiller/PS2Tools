@@ -1,9 +1,10 @@
 @echo off
 SetLocal EnableDelayedExpansion
-set hdl_dump=hdl_dump\hdl_dump.exe
+cd hdl_dump\
+set hdl_dump=hdl_dump.exe
 
-if not exist hdl_dump\system.cnf call :makesystemcnf
-echo. > insertedGameList.txt
+if not exist system.cnf call :makesystemcnf
+echo. > ..\insertedGameList.txt
 
 call :setPS2HDD
 
@@ -14,25 +15,25 @@ set GAMEHDLTOC=%%d
 		set PS2CODE=%%e
 		set PS2CODE=!PS2CODE:~0,4!_!PS2CODE:~5,3!.!PS2CODE:~8,2!
 
-		for /f "delims=; tokens=1,2" %%f in ('findstr !PS2CODE! Files\gamename.csv') do (
+		for /f "delims=; tokens=1,2" %%f in ('findstr !PS2CODE! ..\Files\gamename.csv') do (
 		set GAMENAME=%%g
 
-			for /f "delims== tokens=1,2" %%x in ('findstr !PS2CODE! Files\icons.ini') do (
+			for /f "delims== tokens=1,2" %%x in ('findstr !PS2CODE! ..\Files\icons.ini') do (
 			set GAMEDBID=%%x
 
 				if "!GAMEDBID!"=="!PS2CODE!" (
 					set GAMEICON=%%y 
-					copy /Y /V Files\ICNS\!GAMEICON! hdl_dump\list.ico > nul
+					copy /Y /V ..\Files\ICNS\!GAMEICON! list.ico > nul
 					
 				)	
 			)
 			
 			call :makeiconsys "!GAMENAME!" "!PS2CODE!" 
 			
-			echo !GAMENAME! - !PS2CODE! !date! !time:~0,-3! >> insertedGameList.txt
+			echo !GAMENAME! - !PS2CODE! !date! !time:~0,-3! >> ..\insertedGameList.txt
 			echo Inserting: !GAMENAME! - !PS2CODE!
 			
-			!hdl_dump! modify_header %PS2HDD% "!GAMEHDLTOC!" > nul
+			!hdl_dump! modify_header %PS2HDD% !GAMEHDLTOC! > nul
 			
 			echo Done!
 			
@@ -45,7 +46,7 @@ goto :EOF
 :setPS2HDD
 for /f "tokens=1 delims= " %%a in ('!hdl_dump! query ^| findstr "formatted Playstation"') do set PS2HDD=%%a
 ::trim tab and trim spaces
-set PS2HDD=%PS2HDD:	=% 
+set PS2HDD=%PS2HDD:	=%
 set PS2HDD=%PS2HDD: =%
 if "%PS2HDD%"=="=" (
 echo.
@@ -55,7 +56,7 @@ echo.
 )
 
 :removetmpfiles
-del /q hdl_dump\icon.sys hdl_dump\list.ico hdl_dump\system.cnf 
+del /q icon.sys list.ico system.cnf 
 
 :makeiconsys
 (
@@ -77,7 +78,7 @@ echo lightcol2=0,0,0
 echo uninstallmes0=
 echo uninstallmes1=
 echo uninstallmes2=
-) > hdl_dump\icon.sys
+) > icon.sys
 
 :makesystemcnf
 (
@@ -85,4 +86,4 @@ echo BOOT2 = PATINFO
 echo VER = 1.00
 echo VMODE = NTSC
 echo HDDUNITPOWER = NICHDD
-) > hdl_dump\system.cnf
+) > system.cnf
