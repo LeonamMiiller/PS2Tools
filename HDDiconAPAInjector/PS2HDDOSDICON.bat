@@ -18,7 +18,7 @@ set GAMEHDLTOC=%%d
 		set GAMENAME=%%g
 
 			for /f "delims== tokens=1,2" %%x in ('findstr !PS2CODE! Files\icons.ini') do (
-				set GAMEDBID=%%x
+			set GAMEDBID=%%x
 
 				if "!GAMEDBID!"=="!PS2CODE!" (
 					set GAMEICON=%%y 
@@ -27,7 +27,7 @@ set GAMEHDLTOC=%%d
 				)	
 			)
 			
-			call :makeiconsys "!GAMENAME!" "!GAMEDBID!" 
+			call :makeiconsys "!GAMENAME!" "!PS2CODE!" 
 			
 			echo !GAMENAME! - !PS2CODE! !date! !time:~0,-3! >> insertedGameList.txt
 			echo Inserting: !GAMENAME! - !PS2CODE!
