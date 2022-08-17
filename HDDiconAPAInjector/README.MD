@@ -2,6 +2,12 @@
 
 | GAME CODE | GAME NAME |
 |-----------|-----------|
+|SCES_537.77|Prince of Persia - The Two Thrones|
+|SLES_537.77|Prince of Persia - The Two Thrones|
+|SLKA_253.46|Prince of Persia - The Two Thrones|
+|SLKA_253.48|Prince of Persia - The Two Thrones|
+|SLPM_663.91|Prince of Persia - The Two Thrones|
+|SLUS_212.87|Prince of Persia - The Two Thrones|
 |SLUS_216.78|DragonBall Z - Budokai Tenkaichi 3| 
 |SLES_549.45|Dragon Ball Z - Budokai Tenkaichi 3| 
 |SLUS_216.72|Guitar Hero III - Legends of Rock| 
