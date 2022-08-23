@@ -263,8 +263,8 @@
 |SLPM_662.75|Shin Onimusha - Dawn of Dreams [Disc 1]| 
 |SLPM_662.76|Shin Onimusha - Dawn of Dreams [Disc 2]| 
 |SLPM_680.17|Shin Onimusha - Dawn of Dreams Saikyou Save Data| 
-|SLPM_742.32|Shin Onimusha - Dawn of Dreams [PlayStation 2 The Best]| 
-|SLPM_742.33|Shin Onimusha: Dawn of Dreams (Disc 2)| 
+|SLPM_742.32|Shin Onimusha - Dawn of Dreams [Disc 1] [PlayStation 2 The Best]| 
+|SLPM_742.33|Shin Onimusha: Dawn of Dreams [Disc 2]| 
 |SLPM_742.51|Shin Onimusha - Dawn of Dreams [PlayStation 2 the Best - Reprint]| 
 |SLPM_742.32|Shin Onimusha - Dawn of Dreams [PlayStation 2 The Best]| 
 |SLUS_211.80|Onimusha - Dawn of Dreams [Disc 1]| 

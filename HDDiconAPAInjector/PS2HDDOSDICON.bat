@@ -46,9 +46,8 @@ goto :EOF
 :setPS2HDD
 for /f "tokens=1 delims= " %%a in ('!hdl_dump! query ^| findstr "formatted Playstation"') do set PS2HDD=%%a
 ::trim tab and trim spaces
-set PS2HDD=%PS2HDD:	=%
-set PS2HDD=%PS2HDD: =%
-if "%PS2HDD%"=="=" (
+set PS2HDD=!PS2HDD: =!
+if "%PS2HDD%"==" =" (
 echo.
 echo. 		Local Hard Drive not Found, Please insert your PS2 IP
 echo.
