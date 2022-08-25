@@ -30,8 +30,8 @@ set GAMEHDLTOC=%%d
 			
 			call :makeiconsys "!GAMENAME!" "!PS2CODE!" 
 			
-			echo !GAMENAME! - !PS2CODE! !date! !time:~0,-3! >> ..\insertedGameList.txt
-			echo Inserting: !GAMENAME! - !PS2CODE!
+			echo !date! !time:~0,-3! !PS2CODE! !GAMENAME!>> ..\insertedGameList.txt
+			echo Inserting: !PS2CODE! - !GAMENAME!
 			
 			!hdl_dump! modify_header %PS2HDD% !GAMEHDLTOC! > nul
 			
@@ -41,6 +41,7 @@ set GAMEHDLTOC=%%d
 	
 	)
 )
+pause
 goto :EOF
 
 :setPS2HDD
@@ -53,6 +54,7 @@ echo. 		Local Hard Drive not Found, Please insert your PS2 IP
 echo.
 	set /p "PS2HDD=Insert PS2 IP: "
 )
+
 
 :removetmpfiles
 del /q icon.sys list.ico system.cnf 
