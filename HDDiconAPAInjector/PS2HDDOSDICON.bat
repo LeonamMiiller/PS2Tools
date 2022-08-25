@@ -10,22 +10,24 @@ call :setPS2HDD
 
 for /f "tokens=5 delims= " %%d in ('!hdl_dump! toc %PS2HDD% ^| findstr "PP."') do (
 set GAMEHDLTOC=%%d
-
+	
 	for /f "tokens=2 delims=." %%e in ("%%d") do (
 		set PS2CODE=%%e
 		set PS2CODE=!PS2CODE:~0,4!_!PS2CODE:~5,3!.!PS2CODE:~8,2!
 
 		for /f "delims=; tokens=1,2" %%f in ('findstr !PS2CODE! ..\Files\gamename.csv') do (
-		set GAMENAME=%%g
+			set GAMENAME=%%g
+			call :removetmpfiles
 
-			for /f "delims== tokens=1,2" %%x in ('findstr !PS2CODE! ..\Files\icons.ini') do (
-			set GAMEDBID=%%x
-
-				if "!GAMEDBID!"=="!PS2CODE!" (
-					set GAMEICON=%%y 
-					copy /Y /V ..\Files\ICNS\!GAMEICON! list.ico > nul
-					
-				)	
+			for /f "delims== tokens=1,2" %%x in ('findstr !PS2CODE! ..\Files\icons.ini') do ( 
+				set GAMEDBID=%%x
+				set GAMEICON=%%y
+			)
+			
+			if "!GAMEDBID!"=="!PS2CODE!" (
+				copy /Y /V ..\Files\ICNS\!GAMEICON! list.ico >nul				
+			) else (
+				copy /Y /V ..\Files\ICNS\PS2_GAME_DEFAULT.ico list.ico >nul
 			)
 			
 			call :makeiconsys "!GAMENAME!" "!PS2CODE!" 
@@ -35,12 +37,13 @@ set GAMEHDLTOC=%%d
 			
 			!hdl_dump! modify_header %PS2HDD% !GAMEHDLTOC! > nul
 			
-			echo Done!
+			echo Done
 			
 		)	
 	
 	)
 )
+call :removetmpfiles
 pause
 goto :EOF
 
@@ -54,12 +57,13 @@ echo. 		Local Hard Drive not Found, Please insert your PS2 IP
 echo.
 	set /p "PS2HDD=Insert PS2 IP: "
 )
-
+goto :EOF
 
 :removetmpfiles
-del /q icon.sys list.ico system.cnf 
+del /q icon.sys list.ico 2>nul
+goto :EOF
 
-:makeiconsys
+:makeiconsys 
 (
 echo PS2X
 echo title0=%~1
@@ -80,6 +84,7 @@ echo uninstallmes0=
 echo uninstallmes1=
 echo uninstallmes2=
 ) > icon.sys
+goto :EOF
 
 :makesystemcnf
 (
@@ -88,3 +93,4 @@ echo VER = 1.00
 echo VMODE = NTSC
 echo HDDUNITPOWER = NICHDD
 ) > system.cnf
+goto :EOF
