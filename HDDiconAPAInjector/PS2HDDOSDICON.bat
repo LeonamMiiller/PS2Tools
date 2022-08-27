@@ -1,14 +1,14 @@
 @echo off
 SetLocal EnableDelayedExpansion
 
-set hdl_dump=%~dp0hdl_dump\hdl_dump.exe
-set log=%~dp0insertedGameList.txt
-set ICONDB=%~dp0Files\icons.ini
-set ICONFOLDER=%~dp0Files\ICNS\
-set GAMENAMEDB=%~dp0Files\gamename.csv
-set PS2_DEFAULT_GAMEICON=%~dp0Files\ICNS\PS2_GAME_DEFAULT.ico
+set hdl_dump_exec="%~dp0hdl_dump\hdl_dump.exe"
+set log="%~dp0insertedGameList.txt"
+set ICONDB="%~dp0Files\icons.ini"
+set ICONFOLDER="%~dp0Files\ICNS\"
+set GAMENAMEDB="%~dp0Files\gamename.csv"
+set PS2_DEFAULT_GAMEICON="%~dp0Files\ICNS\PS2_GAME_DEFAULT.ico"
 
-call :split_file_and_path !hdl_dump! hdl_dump_path hdl_dump_exec
+call :split_file_and_path !hdl_dump_exec! hdl_dump_path hdl_dump
 cd !hdl_dump_path!
 
 if not exist system.cnf call :makesystemcnf
