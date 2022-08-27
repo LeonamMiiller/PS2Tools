@@ -1,10 +1,18 @@
 @echo off
 SetLocal EnableDelayedExpansion
-cd hdl_dump\
-set hdl_dump=hdl_dump.exe
+
+set hdl_dump=%~dp0hdl_dump\hdl_dump.exe
+set log=%~dp0insertedGameList.txt
+set ICONDB=%~dp0Files\icons.ini
+set ICONFOLDER=%~dp0Files\ICNS\
+set GAMENAMEDB=%~dp0Files\gamename.csv
+set PS2_DEFAULT_GAMEICON=%~dp0Files\ICNS\PS2_GAME_DEFAULT.ico
+
+call :split_file_and_path !hdl_dump! hdl_dump_path hdl_dump_exec
+cd !hdl_dump_path!
 
 if not exist system.cnf call :makesystemcnf
-echo. > ..\insertedGameList.txt
+type nul > !log!
 
 call :setPS2HDD
 
@@ -14,34 +22,35 @@ set GAMEHDLTOC=%%d
 	for /f "tokens=2 delims=." %%e in ("%%d") do (
 		set PS2CODE=%%e
 		set PS2CODE=!PS2CODE:~0,4!_!PS2CODE:~5,3!.!PS2CODE:~8,2!
-
-		for /f "delims=; tokens=1,2" %%f in ('findstr !PS2CODE! ..\Files\gamename.csv') do (
-			set GAMENAME=%%g
-			call :removetmpfiles
-
-			for /f "delims== tokens=1,2" %%x in ('findstr !PS2CODE! ..\Files\icons.ini') do ( 
-				set GAMEDBID=%%x
-				set GAMEICON=%%y
-			)
-			
-			if "!GAMEDBID!"=="!PS2CODE!" (
-				copy /Y /V ..\Files\ICNS\!GAMEICON! list.ico >nul				
-			) else (
-				copy /Y /V ..\Files\ICNS\PS2_GAME_DEFAULT.ico list.ico >nul
-			)
-			
-			call :makeiconsys "!GAMENAME!" "!PS2CODE!" 
-			
-			echo !date! !time:~0,-3! !PS2CODE! !GAMENAME!>> ..\insertedGameList.txt
-			echo Inserting: !PS2CODE! - !GAMENAME!
-			
-			!hdl_dump! modify_header %PS2HDD% !GAMEHDLTOC! > nul
-			
-			echo Done
-			
-		)	
-	
 	)
+
+	for /f "delims=; tokens=1,2" %%f in ('findstr !PS2CODE! !GAMENAMEDB!') do (
+		set GAMENAME=%%g
+		call :removetmpfiles
+
+		for /f "delims== tokens=1,2" %%x in ('findstr !PS2CODE! !ICONDB!') do ( 
+			set GAMEDBID=%%x
+			set GAMEICON=%%y
+		)
+		
+		if "!GAMEDBID!"=="!PS2CODE!" (
+			copy /Y /V !ICONFOLDER!!GAMEICON! list.ico >nul				
+		) else (
+			copy /Y /V !PS2_DEFAULT_GAMEICON! list.ico >nul
+		)
+
+		
+		call :makeiconsys "!GAMENAME!" "!PS2CODE!" 
+		
+		echo !date! !time:~0,-3! !PS2CODE! !GAMENAME!>> !log!
+		echo Inserting: !PS2CODE! - !GAMENAME!
+		
+		!hdl_dump! modify_header %PS2HDD% !GAMEHDLTOC! > nul
+		
+		echo Done
+		
+	)		
+	
 )
 call :removetmpfiles
 pause
@@ -63,6 +72,13 @@ goto :EOF
 del /q icon.sys list.ico 2>nul
 goto :EOF
 
+:split_file_and_path <file_path> <path> <file>
+(
+    set "%~2=%~dp1"
+	set "%~3=%~nx1"
+    exit /b
+)
+
 :makeiconsys 
 (
 echo PS2X
@@ -80,9 +96,9 @@ echo lightcolamb=64,64,64
 echo lightcol0=64,64,64
 echo lightcol1=16,16,16
 echo lightcol2=0,0,0
-echo uninstallmes0=
-echo uninstallmes1=
-echo uninstallmes2=
+echo uninstallmes0=Are you sure you want to delete %~1 ?
+echo uninstallmes1=It was nice to play with you.
+echo uninstallmes2=Goodbye...
 ) > icon.sys
 goto :EOF
 
