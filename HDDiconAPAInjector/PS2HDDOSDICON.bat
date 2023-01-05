@@ -75,7 +75,7 @@ goto :EOF
 :split_file_and_path <file_path> <path> <file>
 (
     set "%~2=%~dp1"
-	set "%~3=%~nx1"
+    set "%~3=%~nx1"
     exit /b
 )
 
