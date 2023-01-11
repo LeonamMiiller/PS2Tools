@@ -2921,6 +2921,7 @@ SCES_534.52;Trixie in Toyland
 SCES_534.57;Evil Dead - Regeneration
 SCES_534.58;Shin Megami Tensei - Digital Devil Saga
 SCES_534.59;Marc Eckos Getting Up - Contents Under Pressure
+SLKA_253.32;Marc Eckos Getting Up - Contents Under Pressure
 SCES_534.61;Sega Classics Collection
 SCES_534.62;Matrix
 SCES_534.63;NHL 06
@@ -3233,6 +3234,7 @@ SCES_540.61;FIFA World Cup - Germany 06
 SCES_540.62;FIFA World Cup - Germany 06
 SCES_540.63;FIFA World Cup 2006
 SCES_540.64;FIFA World Cup 2006
+SLKA_253.78;FIFA World Cup 2006
 SCES_540.66;X-Men - The Official Game
 SCES_540.68;AFL Premiership 2006
 SCES_540.71;Buzz! The Big Quiz
@@ -4183,6 +4185,7 @@ SCUS_971.30;Hot Shots Golf 3
 SCUS_971.31;NFL GameDay 2002
 SCUS_971.32;Kinetica
 SCUS_971.33;Getaway, The
+SLUS_971.33;Getaway, The
 SCUS_971.34;SOCOM - U.S. Navy SEALs
 SCUS_971.36;NCAA Final Four 2002
 SCUS_971.40;Mark of Kri, The
@@ -12455,6 +12458,7 @@ SLPS_204.81;Simple 2000 Series Vol.112 - The Tousou Highway 2 - Road Warrior 205
 SLPS_204.82;3D Mahjong + Suzume Paitori
 SLPS_204.83;Kamen Rider Kabuto
 SLPS_204.84;Simple 2000 Series Ultimate Vol.34 - Sakigake!! Otokojuku
+SLPM_204.36;Simple 2000 Series Ultimate Vol.34 - Sakigake!! Otokojuku
 SLPS_204.85;Taiko no Tatsujin Doka! [with Tatacon Controller]
 SLPS_204.86;Taiko no Tatsujin Bang Tap! Toomori 7 Daimei
 SLPS_204.87;Pachi-Slot King! Kagaku Ninja-Tai Gatchaman
@@ -13732,6 +13736,7 @@ SLUS_202.18;Stunt GP
 SLUS_202.19;Time Crisis II
 SLUS_202.20;Dead to Rights
 SLUS_202.21;Vampire Night
+SCUS_202.21;Vampire Night
 SLUS_202.22;MTV - Music Generator 2
 SLUS_202.23;Splashdown
 SLUS_202.24;Pac-Man World 2
@@ -13749,6 +13754,8 @@ SLUS_202.35;Superman - Shadow of Apokolips
 SLUS_202.36;Taz Wanted
 SLUS_202.37;ESPN - X Games Skateboarding
 SLUS_202.38;Crash Bandicoot - The Wrath of Cortex
+VW067-J1;Crash Bandicoot - The Wrath of Cortex
+VW067-J2;Crash Bandicoot - The Wrath of Cortex
 SLUS_202.39;Driven
 SLUS_202.40;Conflict Zone
 SLUS_202.41;NCAA Football 2002
@@ -14422,6 +14429,8 @@ SLUS_209.77;Virtua Fighter Cyber Generation
 SLUS_209.78;Power Drome
 SLUS_209.79;Suikoden IV
 SLUS_209.80;Ys - The Ark of Napishtim
+VW263-J1;Ys - The Ark of Napishtim
+VW264-J2;Ys - The Ark of Napishtim
 SLUS_209.81;Teenage Mutant Ninja Turtles 2
 SLUS_209.82;Bad Boys 2
 SLUS_209.83;Musashi Samurai Legend
@@ -14920,6 +14929,7 @@ SLUS_214.91;World Series of Poker - Tournament of Champions
 SLUS_214.92;Scarface [Collectors Edition]
 SLUS_214.93;Need for Speed - Carbon
 SLUS_214.94;Need for Speed - Carbon [Collectors Edition]
+SCUS_214.94;Need for Speed - Carbon [Collectors Edition]
 SLUS_214.95;Sudoku, Carol Vordermans
 SLUS_214.96;ProStroke Golf - World Tour 2007
 SLUS_214.97;Strawberry Shortcake - Adventures in the Land of Dreams
@@ -15548,6 +15558,7 @@ SLUS_503.50;Disneys Tarzan Freeride
 SLUS_530.24;Altered Beast
 SLUS_554.42;Tomb Raider - Underworld
 SLUS_666.66;Beats of Rage
+SLUS_774.48;Anime Hero 2 - Evolution
 SLUS_970.15;Fantavision
 SLUS_974.05;ATV Off-Road Fury 3
 SLUS_999.99;Mortal Kombat Anthology
