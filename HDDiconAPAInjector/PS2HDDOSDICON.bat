@@ -1,85 +1,172 @@
-@echo off
-SetLocal EnableDelayedExpansion
+@ECHO OFF
+SETLOCAL EnableDelayedExpansion
 
-set hdl_dump_exec="%~dp0hdl_dump\hdl_dump.exe"
-set log="%~dp0insertedGameList.txt"
-set ICONDB="%~dp0Files\icons.ini"
-set ICONFOLDER="%~dp0Files\ICNS\"
-set GAMENAMEDB="%~dp0Files\gamename.csv"
-set PS2_DEFAULT_GAMEICON="%~dp0Files\ICNS\PS2_GAME_DEFAULT.ico"
+SET hdl_dump_exec="%~dp0hdl_dump\hdl_dump.exe"
+SET log="%~dp0insertedGameList.txt"
+SET ICONDB="%~dp0Files\icons.ini"
+SET ICONFOLDER="%~dp0Files\ICNS\"
+SET GAMENAMEDB="%~dp0Files\gamename.csv"
+SET PS2_DEFAULT_GAMEICON="%~dp0Files\ICNS\PS2_GAME_DEFAULT.ico"
 
-call :split_file_and_path !hdl_dump_exec! hdl_dump_path hdl_dump
-cd !hdl_dump_path!
+CALL :SPLIT_FILE_AND_PATH !hdl_dump_exec! hdl_dump_path hdl_dump
+CD !hdl_dump_path!
 
-if not exist system.cnf call :makesystemcnf
-type nul > !log!
+CALL :MAKESYSTEMCNF
+TYPE nul > !log!
 
-call :setPS2HDD
+CALL :SET_PS2_HDD
+::SET HDLTOC=type PS2HDDMOCK.PS2
+SET HDLTOC=!hdl_dump! toc %PS2HDD%
+IF		"%~1"=="list"					GOTO :LIST_HDL_TOC_GAMES
 
-for /f "tokens=5 delims= " %%d in ('!hdl_dump! toc %PS2HDD% ^| findstr "PP."') do (
-set GAMEHDLTOC=%%d
+IF		"%~1"=="" 						GOTO :INSERT_ICONS
+IF NOT	"%~1"==""	IF		"%~2"=="" 	GOTO :INSERT_SINGLE_GAME_ICON_BY_USER_INPUT
+IF NOT	"%~1"==""	IF NOT	"%~2"=="" 	GOTO :INSERT_SINGLE_GAME_ICON_BY_USER_INPUT
+
+GOTO :EOF
+
+:INSERT_SINGLE_GAME_ICON_BY_USER_INPUT
+CALL :SET_PS2CODE_FROM_USER_INPUT_TO_GAMEHDLTOC_TYPE %~1 PS2CODE_TO_INJECT
+CALL :INSERT_ICONS %PS2CODE_TO_INJECT% "%~2"
+GOTO :EOF
+
+
+:INSERT_ICONS <PS2CODE_INPUT> <PS2GAME_NAME_INPUT>
+SET PS2GAMECODE_BY_USER_INPUT=%~1
+SET PS2GAMENAME_BY_USER_INPUT=%~2
+
+FOR /f "tokens=5 delims= " %%X IN ('%HDLTOC% ^| findstr "PP.!PS2GAMECODE_BY_USER_INPUT!"') DO (
+SET GAMEHDLTOC=%%X
+SET GAMENAME=""
+
+	CALL :SET_PS2CODE_FROM_GAMEHDLTOC !GAMEHDLTOC! PS2CODE
+
+	IF "%PS2GAMENAME_BY_USER_INPUT%"=="" (
+		
+		FOR /f "delims=; tokens=1,2" %%f IN ('findstr !PS2CODE! !GAMENAMEDB!') DO SET GAMENAME=%%g		
+		
+		
+	) ELSE (	
 	
-	for /f "tokens=2 delims=." %%e in ("%%d") do (
-		set PS2CODE=%%e
-		set PS2CODE=!PS2CODE:~0,4!_!PS2CODE:~5,3!.!PS2CODE:~8,2!
+		SET GAMENAME=!PS2GAMENAME_BY_USER_INPUT!
+		
 	)
-
-	for /f "delims=; tokens=1,2" %%f in ('findstr !PS2CODE! !GAMENAMEDB!') do (
-		set GAMENAME=%%g
-		call :removetmpfiles
-
-		for /f "delims== tokens=1,2" %%x in ('findstr !PS2CODE! !ICONDB!') do ( 
-			set GAMEDBID=%%x
-			set GAMEICON=%%y
-		)
+	
+	
+	IF NOT !GAMENAME!=="" (
+	
+		CALL :REMOVETMPFILES
 		
-		if "!GAMEDBID!"=="!PS2CODE!" (
-			copy /Y /V !ICONFOLDER!!GAMEICON! list.ico >nul				
-		) else (
-			copy /Y /V !PS2_DEFAULT_GAMEICON! list.ico >nul
-		)
-
+		CALL :MAKEICONSYS "!GAMENAME!" "!PS2CODE!" 
 		
-		call :makeiconsys "!GAMENAME!" "!PS2CODE!" 
+		CALL :FIND_AND_SET_GAMEICON !PS2CODE!
 		
-		echo !date! !time:~0,-3! !PS2CODE! !GAMENAME!>> !log!
-		echo Inserting: !PS2CODE! - !GAMENAME!
+		CALL :LOG "!PS2CODE!" "!GAMENAME!"
 		
-		!hdl_dump! modify_header %PS2HDD% !GAMEHDLTOC! > nul
+		CALL :INSERT_GAME_ICON !GAMEHDLTOC!
 		
-		echo Done
-		
-	)		
+		ECHO Done		
+	
+	)
 	
 )
-call :removetmpfiles
+CALL :REMOVETMPFILES
 pause
-goto :EOF
+GOTO :EOF
 
-:setPS2HDD
-for /f "tokens=1 delims= " %%a in ('!hdl_dump! query ^| findstr "formatted Playstation"') do set PS2HDD=%%a
+:LIST_HDL_TOC_GAMES
+ECHO.
+ECHO.		LIST OF ALL GAMES IN HDD
+ECHO.
+
+FOR /f "tokens=5 delims= " %%X IN ('%HDLTOC% ^| findstr "PP."') DO (
+	ECHO %%X
+)
+
+GOTO :EOF
+
+
+:SET_PS2CODE_FROM_USER_INPUT_TO_GAMEHDLTOC_TYPE <PS2CODE_INPUT> <PS2CODE_TO_INJECT>
+FOR /f "tokens=1-8 delims=-._=" %%a IN ("%1") DO SET CODE=%%a%%b%%c%%d%%f%%g%%h%%i%%j%%k
+	
+	FOR /F "tokens=2 delims=-" %%A IN ('FIND "" "%CODE:~0,4%" 2^>^&1') DO SET REGION=%%A
+	SET %~2=%REGION%-%CODE:~4,5%
+
+exit /b	
+::-----------------------------------------------------------------------------------------------------------------
+
+:SET_PS2CODE_FROM_GAMEHDLTOC <HDLGAMETOC> <PS2CODE>
+
+FOR /f "tokens=2 delims=." %%e IN ("%~1") DO SET CODE=%%e
+	
+	SET %~2=%CODE:~0,4%_%CODE:~5,3%.%CODE:~8,2%
+
+exit /b
+
+::-----------------------------------------------------------------------------------------------------------------
+
+:FIND_AND_SET_GAMEICON <PS2CODE>
+FOR /f "delims== tokens=1,2" %%x IN ('findstr %~1 !ICONDB!') DO ( 
+	SET GAMEDBID=%%x
+	SET GAMEICON=%%y
+)
+		
+if "!GAMEDBID!"=="%~1" (
+	copy /Y /V !ICONFOLDER!!GAMEICON! list.ico >nul				
+) else (
+	copy /Y /V !PS2_DEFAULT_GAMEICON! list.ico >nul
+)
+
+GOTO :EOF
+
+::-----------------------------------------------------------------------------------------------------------------
+
+:INSERT_GAME_ICON <GAMEHDLTOC>
+!hdl_dump! modify_header %PS2HDD% %~1 > nul
+
+GOTO :EOF
+
+::-----------------------------------------------------------------------------------------------------------------
+
+:LOG <PS2CODE> <GAMENAME>
+	
+	echo !date! !time:~0,-3! %~1 %~2>> !log!
+	echo Inserting: %~1 %~2
+
+GOTO :EOF
+
+::-----------------------------------------------------------------------------------------------------------------
+
+:SET_PS2_HDD
+FOR /f "tokens=1 delims= " %%a IN ('!hdl_dump! query ^| findstr "formatted Playstation"') DO SET PS2HDD=%%a
 ::trim tab and trim spaces
-set PS2HDD=!PS2HDD: =!
-if "%PS2HDD%"==" =" (
+SET PS2HDD=!PS2HDD: =!
+IF "%PS2HDD%"==" =" (
 echo.
 echo. 		Local Hard Drive not Found, Please insert your PS2 IP
 echo.
-	set /p "PS2HDD=Insert PS2 IP: "
+	SET /p "PS2HDD=Insert PS2 IP: "
 )
-goto :EOF
+GOTO :EOF
 
-:removetmpfiles
-del /q icon.sys list.ico 2>nul
-goto :EOF
+::-----------------------------------------------------------------------------------------------------------------
 
-:split_file_and_path <file_path> <path> <file>
+:REMOVETMPFILES
+DEL /q icon.sys list.ico 2>nul
+GOTO :EOF
+
+::-----------------------------------------------------------------------------------------------------------------
+
+:SPLIT_FILE_AND_PATH <FILE_PATH> <PATH> <FILE>
 (
-    set "%~2=%~dp1"
-    set "%~3=%~nx1"
+    SET "%~2=%~dp1"
+    SET "%~3=%~nx1"
     exit /b
 )
 
-:makeiconsys 
+::-----------------------------------------------------------------------------------------------------------------
+
+:MAKEICONSYS 
 (
 echo PS2X
 echo title0=%~1
@@ -100,13 +187,17 @@ echo uninstallmes0=Are you sure you want to delete %~1 ?
 echo uninstallmes1=It was nice to play with you.
 echo uninstallmes2=Goodbye...
 ) > icon.sys
-goto :EOF
+GOTO :EOF
 
-:makesystemcnf
+::-----------------------------------------------------------------------------------------------------------------
+
+:MAKESYSTEMCNF
 (
 echo BOOT2 = PATINFO
 echo VER = 1.00
 echo VMODE = NTSC
 echo HDDUNITPOWER = NICHDD
 ) > system.cnf
-goto :EOF
+GOTO :EOF
+
+::-----------------------------------------------------------------------------------------------------------------
