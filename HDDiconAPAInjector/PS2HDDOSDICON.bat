@@ -14,7 +14,7 @@ CD !hdl_dump_path!
 CALL :MAKESYSTEMCNF
 TYPE nul > !log!
 
-SET debug=true
+SET debug=false
 
 IF "%debug%"=="true" (
 
