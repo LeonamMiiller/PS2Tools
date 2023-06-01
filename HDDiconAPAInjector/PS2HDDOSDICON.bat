@@ -27,8 +27,7 @@ IF NOT	"%~1"==""	IF NOT	"%~2"=="" 	GOTO :INSERT_SINGLE_GAME_ICON_BY_USER_INPUT
 GOTO :EOF
 
 :INSERT_SINGLE_GAME_ICON_BY_USER_INPUT
-CALL :SET_PS2CODE_FROM_USER_INPUT_TO_GAMEHDLTOC_TYPE %~1 PS2CODE_TO_INJECT
-
+CALL :SET_PS2CODE_FORMAT %~1 PS2CODE_TO_INJECT
 ECHO.
 CALL :TEST_HDL_TOC_GAMES %PS2CODE_TO_INJECT% GAME_FOUND
 ECHO.
@@ -63,7 +62,6 @@ SET GAMENAME=""
 	IF "%PS2GAMENAME_BY_USER_INPUT%"=="" (
 		
 		FOR /f "delims=; tokens=1,2" %%f IN ('findstr !PS2CODE! !GAMENAMEDB!') DO SET GAMENAME=%%g		
-		
 		
 	) ELSE (	
 	
@@ -125,17 +123,22 @@ GOTO :EOF
 ::-----------------------------------------------------------------------------------------------------------------
 
 
-:SET_PS2CODE_FROM_USER_INPUT_TO_GAMEHDLTOC_TYPE <PS2CODE_INPUT> <PS2CODE_TO_INJECT>
-FOR /f "tokens=1-8 delims=-._=" %%a IN ("%1") DO SET CODE=%%a%%b%%c%%d%%f%%g%%h%%i%%j%%k
-	
-	FOR /F "tokens=2 delims=-" %%A IN ('FIND "" "%CODE:~0,4%" 2^>^&1') DO SET REGION=%%A
-	SET %~2=%REGION%-%CODE:~4,5%
+:SET_PS2CODE_FORMAT <PS2CODE_INPUT> <PS2CODE_TO_INJECT> <NUMBER_FORMAT>
+FOR /F "tokens=1-20 delims=-._=[]{}/?,\|´`" %%a IN ("%1") DO SET CODE=%%a%%b%%c%%d%%f%%g%%h%%i%%j%%k%%l%%m%%n
+FOR /F "tokens=2 delims=-" %%A IN ('FIND "" "%CODE:~0,4%" 2^>^&1') DO SET REGION=%%A
 
+	IF "%~3"=="" (
+		SET %~2=%REGION%-%CODE:~4,5%
+	)
+	
+	IF "%~3"=="1" (
+		SET %~2=%REGION%_%CODE:~4,3%.%CODE:~7,2%
+	)
+	
 exit /b	
 ::-----------------------------------------------------------------------------------------------------------------
 
-:SET_PS2CODE_FROM_GAMEHDLTOC <HDLGAMETOC> <PS2CODE>
-
+:SET_PS2CODE_FROM_GAMEHDLTOC <HDLGAMETOC> <PS2CODE> 
 FOR /f "tokens=2 delims=." %%e IN ("%~1") DO SET CODE=%%e
 	
 	SET %~2=%CODE:~0,4%_%CODE:~5,3%.%CODE:~8,2%
