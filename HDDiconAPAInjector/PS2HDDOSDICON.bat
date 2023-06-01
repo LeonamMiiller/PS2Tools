@@ -14,9 +14,19 @@ CD !hdl_dump_path!
 CALL :MAKESYSTEMCNF
 TYPE nul > !log!
 
-CALL :SET_PS2_HDD
-::SET HDLTOC=type PS2HDDMOCK.PS2
-SET HDLTOC=!hdl_dump! toc %PS2HDD%
+SET debug=false
+
+IF "%debug%"=="true" (
+
+	SET HDLTOC=type PS2HDDMOCK.PS2
+
+) ELSE (
+
+	CALL :SET_PS2_HDD
+	SET HDLTOC=!hdl_dump! toc %PS2HDD%
+)
+
+
 
 IF	"%~1"=="list"				GOTO :LIST_HDL_TOC_GAMES
 
@@ -37,6 +47,7 @@ IF "%GAME_FOUND%"=="FOUND" (
 	CALL :INSERT_ICONS %PS2CODE_TO_INJECT% "%~2"
 
 ) ELSE (
+
 	CLS
 	ECHO.
 	ECHO.	GAME%PS2CODE_TO_INJECT% NOT FOUND, TRY AGAIN
@@ -96,8 +107,11 @@ GOTO :EOF
 ::-----------------------------------------------------------------------------------------------------------------
 
 :INSERT_GAME_ICON <GAMEHDLTOC>
-!hdl_dump! modify_header %PS2HDD% %~1 > nul
-
+IF "%debug%"=="true" (
+ECHO	!hdl_dump! modify_header %PS2HDD% %~1
+) ELSE (
+		!hdl_dump! modify_header %PS2HDD% %~1 > nul
+)
 GOTO :EOF
 
 ::-----------------------------------------------------------------------------------------------------------------
