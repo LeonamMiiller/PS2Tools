@@ -1,21 +1,16 @@
 @ECHO OFF
 SETLOCAL EnableDelayedExpansion
 
-SET hdl_dump_exec="%~dp0hdl_dump\hdl_dump.exe"
+SET hdl_dump="%~dp0hdl_dump\hdl_dump.exe"
 SET log="%~dp0insertedGameList.txt"
 SET ICONDB="%~dp0Files\icons.ini"
 SET ICONFOLDER="%~dp0Files\ICNS\"
 SET GAMENAMEDB="%~dp0Files\gamename.csv"
 SET PS2_DEFAULT_GAMEICON="%~dp0Files\ICNS\PS2_GAME_DEFAULT.ico"
 
-CALL :SPLIT_FILE_AND_PATH !hdl_dump_exec! hdl_dump_path hdl_dump
-CD !hdl_dump_path!
-
-CALL :MAKESYSTEMCNF
-TYPE nul > !log!
+CALL :SPLIT_FILE_AND_PATH !hdl_dump! hdl_dump_path
 
 SET debug=false
-
 IF "%debug%"=="true" (
 
 	SET HDLTOC=type PS2HDDMOCK.PS2
@@ -63,6 +58,10 @@ GOTO :EOF
 :INSERT_ICONS <PS2CODE_INPUT> <PS2GAME_NAME_INPUT>
 SET PS2GAMECODE_BY_USER_INPUT=%~1
 SET PS2GAMENAME_BY_USER_INPUT=%~2
+
+CD !hdl_dump_path!
+CALL :MAKESYSTEMCNF
+TYPE nul > !log!
 
 FOR /f "tokens=5 delims= " %%X IN ('%HDLTOC% ^| findstr "PP.!PS2GAMECODE_BY_USER_INPUT!"') DO (
 SET GAMEHDLTOC=%%X
@@ -214,10 +213,10 @@ GOTO :EOF
 
 ::-----------------------------------------------------------------------------------------------------------------
 
-:SPLIT_FILE_AND_PATH <FILE_PATH> <PATH> <FILE>
+:SPLIT_FILE_AND_PATH <FILE_PATH> <PATH>
 (
     SET "%~2=%~dp1"
-    SET "%~3=%~nx1"
+    SET "%~1=%~nx1"
     exit /b
 )
 
