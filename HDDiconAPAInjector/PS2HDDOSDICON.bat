@@ -28,7 +28,25 @@ GOTO :EOF
 
 :INSERT_SINGLE_GAME_ICON_BY_USER_INPUT
 CALL :SET_PS2CODE_FROM_USER_INPUT_TO_GAMEHDLTOC_TYPE %~1 PS2CODE_TO_INJECT
-CALL :INSERT_ICONS %PS2CODE_TO_INJECT% "%~2"
+
+ECHO.
+CALL :TEST_HDL_TOC_GAMES %PS2CODE_TO_INJECT% GAME_FOUND
+ECHO.
+
+IF "%GAME_FOUND%"=="FOUND" (
+
+	CALL :INSERT_ICONS %PS2CODE_TO_INJECT% "%~2"
+
+) ELSE (
+	CLS
+	ECHO.
+	ECHO.	GAME%PS2CODE_TO_INJECT% NOT FOUND, TRY AGAIN
+	ECHO.
+	ECHO.	How to
+	ECHO.	PS2HDDOSDICON.bat XXXX-00000 "My Favorite Game"
+	CALL :LIST_HDL_TOC_GAMES
+)
+
 GOTO :EOF
 
 
@@ -72,23 +90,39 @@ SET GAMENAME=""
 	
 )
 CALL :REMOVETMPFILES
+ECHO.
+ECHO.
 pause
+GOTO :EOF
+
+::-----------------------------------------------------------------------------------------------------------------
+
+:INSERT_GAME_ICON <GAMEHDLTOC>
+!hdl_dump! modify_header %PS2HDD% %~1 > nul
+
 GOTO :EOF
 
 ::-----------------------------------------------------------------------------------------------------------------
 
 :LIST_HDL_TOC_GAMES
 ECHO.
-ECHO.		LIST OF ALL GAMES IN HDD
+ECHO.	LIST OF ALL GAMES IN HDD
 ECHO.
 
-FOR /f "tokens=5 delims= " %%X IN ('%HDLTOC% ^| findstr "PP."') DO (
-	ECHO %%X
-)
+	CALL :TEST_HDL_TOC_GAMES "" DUMMY
+
+GOTO :EOF
 
 ::-----------------------------------------------------------------------------------------------------------------
 
+:TEST_HDL_TOC_GAMES <PS2CODE_TO_INJECT> <GAME_FOUND>
+FOR /f "tokens=5 delims= " %%X IN ('%HDLTOC% ^| findstr "PP.%~1"') DO (
+	SET %~2=FOUND
+	ECHO.	FOUND: %%X
+)
 GOTO :EOF
+
+::-----------------------------------------------------------------------------------------------------------------
 
 
 :SET_PS2CODE_FROM_USER_INPUT_TO_GAMEHDLTOC_TYPE <PS2CODE_INPUT> <PS2CODE_TO_INJECT>
@@ -121,13 +155,6 @@ if "!GAMEDBID!"=="%~1" (
 ) else (
 	copy /Y /V !PS2_DEFAULT_GAMEICON! list.ico >nul
 )
-
-GOTO :EOF
-
-::-----------------------------------------------------------------------------------------------------------------
-
-:INSERT_GAME_ICON <GAMEHDLTOC>
-!hdl_dump! modify_header %PS2HDD% %~1 > nul
 
 GOTO :EOF
 
