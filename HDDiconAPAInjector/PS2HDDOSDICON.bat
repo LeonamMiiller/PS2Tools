@@ -14,7 +14,7 @@ CD !hdl_dump_path!
 CALL :MAKESYSTEMCNF
 TYPE nul > !log!
 
-SET debug=false
+SET debug=true
 
 IF "%debug%"=="true" (
 
@@ -39,7 +39,7 @@ GOTO :EOF
 :INSERT_SINGLE_GAME_ICON_BY_USER_INPUT
 CALL :SET_PS2CODE_FORMAT %~1 PS2CODE_TO_INJECT
 ECHO.
-CALL :TEST_HDL_TOC_GAMES %PS2CODE_TO_INJECT% GAME_FOUND
+CALL :FIND_HDL_TOC_GAMES %PS2CODE_TO_INJECT% GAME_FOUND
 ECHO.
 
 IF "%GAME_FOUND%"=="FOUND" (
@@ -121,13 +121,13 @@ ECHO.
 ECHO.	LIST OF ALL GAMES IN HDD
 ECHO.
 
-	CALL :TEST_HDL_TOC_GAMES "" DUMMY
+	CALL :FIND_HDL_TOC_GAMES "" DUMMY
 
 GOTO :EOF
 
 ::-----------------------------------------------------------------------------------------------------------------
 
-:TEST_HDL_TOC_GAMES <PS2CODE_TO_INJECT> <GAME_FOUND>
+:FIND_HDL_TOC_GAMES <PS2CODE_TO_INJECT> <GAME_FOUND>
 FOR /f "tokens=5 delims= " %%X IN ('%HDLTOC% ^| findstr "PP.%~1"') DO (
 	SET %~2=FOUND
 	ECHO.	FOUND: %%X
