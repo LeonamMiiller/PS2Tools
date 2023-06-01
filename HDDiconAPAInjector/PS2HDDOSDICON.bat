@@ -71,8 +71,8 @@ SET GAMENAME=""
 	CALL :SET_PS2CODE_FROM_GAMEHDLTOC !GAMEHDLTOC! PS2CODE
 
 	IF "%PS2GAMENAME_BY_USER_INPUT%"=="" (
-		
-		FOR /f "delims=; tokens=1,2" %%f IN ('findstr !PS2CODE! !GAMENAMEDB!') DO SET GAMENAME=%%g		
+
+		CALL :FIND_INFO_FROM_DATABASE !GAMENAMEDB! !PS2CODE! DUMMY_PS2CODE GAMENAME		
 		
 	) ELSE (	
 	
@@ -132,7 +132,7 @@ FOR /f "tokens=5 delims= " %%X IN ('%HDLTOC% ^| findstr "PP.%~1"') DO (
 	SET %~2=FOUND
 	ECHO.	FOUND: %%X
 )
-GOTO :EOF
+exit /b
 
 ::-----------------------------------------------------------------------------------------------------------------
 
@@ -162,10 +162,7 @@ exit /b
 ::-----------------------------------------------------------------------------------------------------------------
 
 :FIND_AND_SET_GAMEICON <PS2CODE>
-FOR /f "delims== tokens=1,2" %%x IN ('findstr %~1 !ICONDB!') DO ( 
-	SET GAMEDBID=%%x
-	SET GAMEICON=%%y
-)
+CALL :FIND_INFO_FROM_DATABASE !ICONDB! %~1 GAMEDBID GAMEICON
 		
 if "!GAMEDBID!"=="%~1" (
 	copy /Y /V !ICONFOLDER!!GAMEICON! list.ico >nul				
@@ -174,6 +171,17 @@ if "!GAMEDBID!"=="%~1" (
 )
 
 GOTO :EOF
+
+::-----------------------------------------------------------------------------------------------------------------
+
+:FIND_INFO_FROM_DATABASE <DATABASE> <VALUE_TO_FIND> <RETURN_1> <RETURN_2>
+FOR /f "delims=;= tokens=1,2" %%x IN ('findstr %~2 %~1') DO ( 
+	SET %~3=%%x
+	SET %~4=%%y
+)
+
+exit /b
+
 
 ::-----------------------------------------------------------------------------------------------------------------
 
