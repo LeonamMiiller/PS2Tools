@@ -8,13 +8,14 @@ SET ICONFOLDER="%~dp0Files\ICNS\"
 SET GAMENAMEDB="%~dp0Files\gamename.csv"
 SET PS2_DEFAULT_GAMEICON="%~dp0Files\ICNS\PS2_GAME_DEFAULT.ico"
 
-CALL :SPLIT_FILE_AND_PATH !hdl_dump! hdl_dump_path
+CALL :SPLIT_FILE_AND_PATH !hdl_dump! hdl_dump_path hdl_dump_exec
 
 SET debug=false
 IF "%debug%"=="true" (
 
-	SET HDLTOC=type PS2HDDMOCK.PS2
-
+	SET PS2HDD=fake_HDD1
+	SET HDLTOC=type %~dp0hdl_dump\PS2HDDMOCK.PS2
+	
 ) ELSE (
 
 	CALL :SET_PS2_HDD
@@ -48,7 +49,9 @@ IF "%GAME_FOUND%"=="FOUND" (
 	ECHO.	GAME%PS2CODE_TO_INJECT% NOT FOUND, TRY AGAIN
 	ECHO.
 	ECHO.	How to
-	ECHO.	PS2HDDOSDICON.bat XXXX-00000 "My Favorite Game"
+	ECHO.	PS2HDDOSDICON.bat XXXX-00000
+	ECHO.	Or
+	ECHO.	PS2HDDOSDICON.bat XXXX-00000 "My Favorite PS2 Game"
 	CALL :LIST_HDL_TOC_GAMES
 )
 
@@ -107,9 +110,9 @@ GOTO :EOF
 
 :INSERT_GAME_ICON <GAMEHDLTOC>
 IF "%debug%"=="true" (
-ECHO	!hdl_dump! modify_header %PS2HDD% %~1
+ECHO	!hdl_dump_exec! modify_header %PS2HDD% %~1
 ) ELSE (
-		!hdl_dump! modify_header %PS2HDD% %~1 > nul
+	!hdl_dump! modify_header %PS2HDD% %~1 > nul
 )
 GOTO :EOF
 
@@ -137,7 +140,7 @@ exit /b
 
 
 :SET_PS2CODE_FORMAT <PS2CODE_INPUT> <PS2CODE_TO_INJECT> <NUMBER_FORMAT>
-FOR /F "tokens=1-20 delims=-._=[]{}/?,\|´`" %%a IN ("%1") DO SET CODE=%%a%%b%%c%%d%%f%%g%%h%%i%%j%%k%%l%%m%%n
+FOR /F "tokens=1-20 delims=-._=[]{}/?,\|´`" %%a IN ("%1") DO SET CODE=%%a%%b%%c%%d%%e%%f%%g%%h%%i%%j%%k%%l%%m%%n
 FOR /F "tokens=2 delims=-" %%A IN ('FIND "" "%CODE:~0,4%" 2^>^&1') DO SET REGION=%%A
 
 	IF "%~3"=="" (
@@ -187,7 +190,10 @@ exit /b
 :LOG <PS2CODE> <GAMENAME>
 	
 	echo !date! !time:~0,-3! %~1 %~2>> !log!
-	echo Inserting: %~1 %~2
+	echo.
+	echo Inserting...
+	echo NAME: %~2
+	echo CODE: %~1 	
 
 GOTO :EOF
 
@@ -213,9 +219,10 @@ GOTO :EOF
 
 ::-----------------------------------------------------------------------------------------------------------------
 
-:SPLIT_FILE_AND_PATH <FILE_PATH> <PATH>
+:SPLIT_FILE_AND_PATH <PATH_FILE> <PATH> <FILE>
 (
     SET "%~2=%~dp1"
+	SET "%~3=%~nx1"
     SET "%~1=%~nx1"
     exit /b
 )
