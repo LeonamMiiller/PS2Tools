@@ -10,6 +10,8 @@ SET PS2_DEFAULT_GAMEICON="%~dp0Files\ICNS\PS2_GAME_DEFAULT.ico"
 
 CALL :SPLIT_FILE_AND_PATH !hdl_dump! hdl_dump_path hdl_dump_exec
 
+::-----------------------------------------------------------------------------------------------------------------
+
 SET debug=false
 IF "%debug%"=="true" (
 
@@ -22,7 +24,7 @@ IF "%debug%"=="true" (
 	SET HDLTOC=!hdl_dump! toc %PS2HDD%
 )
 
-
+::-----------------------------------------------------------------------------------------------------------------
 
 IF	"%~1"=="list"				GOTO :LIST_HDL_TOC_GAMES
 
@@ -31,6 +33,8 @@ IF NOT	"%~1"==""	IF	"%~2"=="" 	GOTO :INSERT_SINGLE_GAME_ICON_BY_USER_INPUT
 IF NOT	"%~1"==""	IF NOT	"%~2"=="" 	GOTO :INSERT_SINGLE_GAME_ICON_BY_USER_INPUT
 
 GOTO :EOF
+
+::-----------------------------------------------------------------------------------------------------------------
 
 :INSERT_SINGLE_GAME_ICON_BY_USER_INPUT
 CALL :SET_PS2CODE_FORMAT %~1 PS2CODE_TO_INJECT
@@ -57,6 +61,7 @@ IF "%GAME_FOUND%"=="FOUND" (
 
 GOTO :EOF
 
+::-----------------------------------------------------------------------------------------------------------------
 
 :INSERT_ICONS <PS2CODE_INPUT> <PS2GAME_NAME_INPUT>
 SET PS2GAMECODE_BY_USER_INPUT=%~1
@@ -138,7 +143,6 @@ exit /b
 
 ::-----------------------------------------------------------------------------------------------------------------
 
-
 :SET_PS2CODE_FORMAT <PS2CODE_INPUT> <PS2CODE_TO_INJECT> <NUMBER_FORMAT>
 FOR /F "tokens=1-20 delims=-._=[]{}/?,\|´`" %%a IN ("%1") DO SET CODE=%%a%%b%%c%%d%%e%%f%%g%%h%%i%%j%%k%%l%%m%%n
 FOR /F "tokens=2 delims=-" %%A IN ('FIND "" "%CODE:~0,4%" 2^>^&1') DO SET REGION=%%A
@@ -151,7 +155,8 @@ FOR /F "tokens=2 delims=-" %%A IN ('FIND "" "%CODE:~0,4%" 2^>^&1') DO SET REGION
 		SET %~2=%REGION%_%CODE:~4,3%.%CODE:~7,2%
 	)
 	
-exit /b	
+exit /b
+	
 ::-----------------------------------------------------------------------------------------------------------------
 
 :SET_PS2CODE_FROM_GAMEHDLTOC <HDLGAMETOC> <PS2CODE> 
@@ -183,7 +188,6 @@ FOR /f "delims=;= tokens=1,2" %%x IN ('findstr %~2 %~1') DO (
 )
 
 exit /b
-
 
 ::-----------------------------------------------------------------------------------------------------------------
 
@@ -222,7 +226,7 @@ GOTO :EOF
 :SPLIT_FILE_AND_PATH <PATH_FILE> <PATH> <FILE>
 (
     SET "%~2=%~dp1"
-	SET "%~3=%~nx1"
+    SET "%~3=%~nx1"
     SET "%~1=%~nx1"
     exit /b
 )
