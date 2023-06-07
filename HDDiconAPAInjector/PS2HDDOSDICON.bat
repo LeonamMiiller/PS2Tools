@@ -155,6 +155,10 @@ FOR /F "tokens=2 delims=-" %%A IN ('FIND "" "%CODE:~0,4%" 2^>^&1') DO SET REGION
 		SET %~2=%REGION%_%CODE:~4,3%.%CODE:~7,2%
 	)
 	
+	IF "%~3"=="2" (
+		SET %~2=%CODE%
+	)
+	
 exit /b
 	
 ::-----------------------------------------------------------------------------------------------------------------
@@ -258,9 +262,14 @@ GOTO :EOF
 
 ::-----------------------------------------------------------------------------------------------------------------
 
-:MAKESYSTEMCNF
+:MAKESYSTEMCNF <SYSBOOT>
+IF "%~1"=="" ( 
+	SET BOOT=PATINFO 
+) ELSE (
+	SET BOOT=pfs:/%~1
+)
 (
-echo BOOT2 = PATINFO
+echo BOOT2 = %BOOT%
 echo VER = 1.00
 echo VMODE = NTSC
 echo HDDUNITPOWER = NICHDD
