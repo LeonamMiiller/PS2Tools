@@ -26,11 +26,10 @@ IF "%debug%"=="true" (
 
 ::-----------------------------------------------------------------------------------------------------------------
 
-IF	"%~1"=="list"				GOTO :LIST_HDL_TOC_GAMES
-IF	"%~1"=="app"				CALL :INSERT_SINGLE_APP_ICON_BY_USER_INPUT %~2 %~3 && GOTO :EOF
-
 IF	"%~1"==""			GOTO :INSERT_ICONS
-IF NOT	"%~1"=="app"			GOTO :INSERT_SINGLE_GAME_ICON_BY_USER_INPUT
+IF	"%~1"=="list"			GOTO :LIST_HDL_TOC_GAMES
+IF	"%~1"=="app"		IF NOT "%~2"==""		CALL :INSERT_SINGLE_APP_ICON_BY_USER_INPUT %~2 %~3 && GOTO :EOF
+IF NOT "%~1"==""		IF NOT "%~1"=="app"		GOTO :INSERT_SINGLE_GAME_ICON_BY_USER_INPUT
 
 GOTO :EOF
 
