@@ -27,63 +27,50 @@ IF "%debug%"=="true" (
 ::-----------------------------------------------------------------------------------------------------------------
 
 IF	"%~1"=="list"				GOTO :LIST_HDL_TOC_GAMES
+IF	"%~1"=="app"				CALL :INSERT_SINGLE_APP_ICON_BY_USER_INPUT %~2 %~3 && GOTO :EOF
 
-IF	"%~1"=="" 				GOTO :INSERT_ICONS
-IF NOT	"%~1"==""	IF	"%~2"=="" 	GOTO :INSERT_SINGLE_GAME_ICON_BY_USER_INPUT
-IF NOT	"%~1"==""	IF NOT	"%~2"=="" 	GOTO :INSERT_SINGLE_GAME_ICON_BY_USER_INPUT
+IF	"%~1"==""			GOTO :INSERT_ICONS
+IF NOT	"%~1"=="app"			GOTO :INSERT_SINGLE_GAME_ICON_BY_USER_INPUT
 
 GOTO :EOF
 
 ::-----------------------------------------------------------------------------------------------------------------
-:FIND_KELF_FILE <INPUT_CODE> <RETURN_KELF_FILE>
-@ECHO ON
-FOR /f "tokens=*" %%a in ('dir /b /s "%hdl_dump_path%APPS\%~1\*.kelf"') do ( 
-	ECHO %%A
-	ECHO %~1
-	SET KELF=%%~nxa
-	ECHO %KELF%
-)	
-@ECHO OFF
-PAUSE
+:INSERT_SINGLE_APP_ICON_BY_USER_INPUT <APP_CODE> <APP_NAME>
+CALL :FIND_HDL_TOC_GAMES %~1 PS2APP_FOUND
 
-::set %~2=OPL.KELF
+IF NOT "%PS2APP_FOUND%"=="" (	
+	CALL :SET_PS2CODE_FROM_GAMEHDLTOC %PS2APP_FOUND% PS2APP 2
+	CALL :FIND_KELF_FILE !PS2APP! KELF_FILE
 
-exit /b
 
-:INSERT_SINGLE_GAME_ICON_BY_USER_INPUT
-CALL :FIND_HDL_TOC_GAMES %~1 PS2APP_FOUND PS2ELF
-
-IF "%PS2APP_FOUND%"=="FOUND" (	
-	CALL :SET_PS2CODE_FORMAT %PS2ELF% PS2APP 2
-
-pause
-	CALL :FIND_KELF_FILE %PS2APP% KELF_FILE
-
-	IF "%KELF_FILE%"=="" (
+	IF "!KELF_FILE!"=="" (
 		ECHO.	Kelf file not found
 		ECHO.	Please put it into "%hdl_dump_path%APPS\%PS2APP%\"
 		ECHO.	And try again
-		ECHO.	PS2HDDOSDICON.bat %PS2APP% "My Favorite PS2 APP"
+		ECHO.	PS2HDDOSDICON.bat %PS2APP% "%PS2APP% is My Favorite PS2 APP"
 		GOTO :EOF
 	)
 
-	IF NOT "%KELF_FILE%"=="" IF "%~2"=="" (
+	IF NOT "!KELF_FILE!"=="" IF "%~2"=="" (
 		ECHO.	App Name not SET
 		ECHO.	Please insert a name like this
-		ECHO.	PS2HDDOSDICON.bat MYELFAPP "My Favorite PS2 APP"
+		ECHO.	PS2HDDOSDICON.bat %PS2APP% "%PS2APP% is My Favorite PS2 APP"
 		GOTO :EOF
 	)
 	
-	echo CALL :INSERT_ICONS %PS2ELF_TO_INJECT% "%~2"
+	echo CALL :INSERT_ICONS %PS2APP% "%~2"
 
-) ELSE (
+)	
+GOTO :EOF
 
-	CALL :SET_PS2CODE_FORMAT %~1 PS2CODE_TO_INJECT  
+:INSERT_SINGLE_GAME_ICON_BY_USER_INPUT
+
+	CALL :SET_PS2CODE_FORMAT %~1 PS2CODE_TO_INJECT 2
 	ECHO.
-	CALL :FIND_HDL_TOC_GAMES %PS2CODE_TO_INJECT% GAME_FOUND
+	CALL :FIND_HDL_TOC_GAMES !PS2CODE_TO_INJECT! GAME_FOUND 
 	ECHO.
 
-	IF "%GAME_FOUND%"=="FOUND" (
+	IF NOT "%GAME_FOUND%"=="" (
 
 		CALL :INSERT_ICONS %PS2CODE_TO_INJECT% "%~2"
 
@@ -92,7 +79,6 @@ pause
 		CALL :LOG_CODE_NOT_FOUND !PS2CODE_TO_INJECT!
 	
 	)
-)
 
 GOTO :EOF
 
@@ -109,7 +95,8 @@ FOR /f "tokens=5 delims= " %%X IN ('%HDLTOC% ^| findstr "PP.!PS2GAMECODE_BY_USER
 SET GAMEHDLTOC=%%X
 SET GAMENAME=""
 
-	CALL :SET_PS2CODE_FROM_GAMEHDLTOC !GAMEHDLTOC! PS2CODE
+	CALL :SET_PS2CODE_FROM_GAMEHDLTOC !GAMEHDLTOC! PS2CODE 1
+
 
 	IF "%PS2GAMENAME_BY_USER_INPUT%"=="" (
 
@@ -121,7 +108,7 @@ SET GAMENAME=""
 		
 	)
 	
-	
+
 	IF NOT !GAMENAME!=="" (
 	
 		CALL :REMOVETMPFILES
@@ -171,40 +158,48 @@ GOTO :EOF
 ::-----------------------------------------------------------------------------------------------------------------
 
 :FIND_HDL_TOC_GAMES <PS2CODE_TO_INJECT> <GAME_FOUND> <RETURN_CODE>
-@echo on
 FOR /f "tokens=5 delims= " %%X IN ('%HDLTOC% ^| findstr /i "PP.%~1"') DO (
-	SET %~2=FOUND	
+	SET "%~2=%%X"
 	ECHO.	FOUND: %%X
 )
-@echo off
 exit /b
 
 ::-----------------------------------------------------------------------------------------------------------------
 
 :SET_PS2CODE_FORMAT <PS2CODE_INPUT> <PS2CODE_TO_INJECT> <NUMBER_FORMAT>
 FOR /F "tokens=1-20 delims=-._=[]{}/?,\|´`" %%a IN ("%1") DO SET CODE=%%a%%b%%c%%d%%e%%f%%g%%h%%i%%j%%k%%l%%m%%n
-FOR /F "tokens=2 delims=-" %%A IN ('FIND "" "%CODE%" 2^>^&1') DO SET REGION=%%A
+FOR /F "tokens=2 delims=-" %%A IN ('FIND "" "%CODE:~0,4%" 2^>^&1') DO SET REGION=%%A
+	CALL :FORMAT_PS2CODE %REGION%%CODE:~4,9% %~2 %~3
 
-	IF "%~3"=="" (
-		SET %~2=%REGION:~0,4%-%CODE:~4,5%
-	)
-	
-	IF "%~3"=="1" (
-		SET %~2=%REGION:~0,4%_%CODE:~4,3%.%CODE:~7,2%
-	)
-	
-	IF "%~3"=="2" (
-		SET %~2=%REGION%
-	)
-pause	
 exit /b
 	
 ::-----------------------------------------------------------------------------------------------------------------
 
-:SET_PS2CODE_FROM_GAMEHDLTOC <HDLGAMETOC> <PS2CODE> 
-FOR /f "tokens=2 delims=." %%e IN ("%~1") DO SET CODE=%%e	
-	SET %~2=%CODE:~0,4%_%CODE:~5,3%.%CODE:~8,2%
+:SET_PS2CODE_FROM_GAMEHDLTOC <HDLGAMETOC> <PS2CODE> <NUMBER_FORMAT>
+FOR /f "tokens=2 delims=." %%e IN ("%~1") DO (
+	IF "%~3"=="" (
+		CALL :FORMAT_PS2CODE %%e %~2 1
+	) ELSE (
+		CALL :FORMAT_PS2CODE %%e %~2 %~3
+	)
+)
 
+exit /b
+
+:FORMAT_PS2CODE <INPUT_PS2CODE> <RETURN_PS2CODE> <NUMBER_FORMAT>
+FOR /F "tokens=1-20 delims=-._=[]{}/?,\|´`" %%a IN ("%1") DO SET CODE=%%a%%b%%c%%d%%e%%f%%g%%h%%i%%j%%k%%l%%m%%n
+
+	IF "%~3"=="" (
+		SET "%~2=%CODE:~0,4%-%CODE:~4,5%"
+	)
+	
+	IF "%~3"=="1" (
+		SET "%~2=%CODE:~0,4%_%CODE:~4,3%.%CODE:~7,2%"
+	)
+	
+	IF "%~3"=="2" (
+		SET "%~2=%CODE%"
+	)	
 exit /b
 
 ::-----------------------------------------------------------------------------------------------------------------
@@ -224,9 +219,16 @@ GOTO :EOF
 
 :FIND_INFO_FROM_DATABASE <DATABASE> <VALUE_TO_FIND> <RETURN_1> <RETURN_2>
 FOR /f "delims=;= tokens=1,2" %%x IN ('findstr %~2 %~1') DO ( 
-	SET %~3=%%x
-	SET %~4=%%y
+	SET "%~3=%%x"
+	SET "%~4=%%y"
 )
+
+exit /b
+
+::-----------------------------------------------------------------------------------------------------------------
+
+:FIND_KELF_FILE <INPUT_CODE> <RETURN_KELF_FILE>
+FOR /f "tokens=*" %%a in ('dir /b /s "%hdl_dump_path%APPS\%~1\*.kelf"') do SET "%~2=%%~nxa"
 
 exit /b
 
