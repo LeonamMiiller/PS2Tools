@@ -28,8 +28,8 @@ IF "%debug%"=="true" (
 
 IF	"%~1"==""			GOTO :INSERT_ICONS
 IF	"%~1"=="list"			GOTO :LIST_HDL_TOC_GAMES
-IF	"%~1"=="app"		IF NOT "%~2"==""		CALL :INSERT_SINGLE_APP_ICON_BY_USER_INPUT %~2 %~3 && GOTO :EOF
-IF NOT "%~1"==""		IF NOT "%~1"=="app"		GOTO :INSERT_SINGLE_GAME_ICON_BY_USER_INPUT
+IF	"%~1"=="app"			IF NOT "%~2"==""		CALL :INSERT_SINGLE_APP_ICON_BY_USER_INPUT %~2 %~3 && GOTO :EOF
+IF  NOT "%~1"==""			IF NOT "%~1"=="app"		GOTO :INSERT_SINGLE_GAME_ICON_BY_USER_INPUT
 
 GOTO :EOF
 
@@ -38,26 +38,29 @@ GOTO :EOF
 CALL :FIND_HDL_TOC_GAMES %~1 PS2APP_FOUND
 
 IF NOT "%PS2APP_FOUND%"=="" (	
-	CALL :SET_PS2CODE_FROM_GAMEHDLTOC %PS2APP_FOUND% PS2APP 2
-	CALL :FIND_KELF_FILE !PS2APP! KELF_FILE
-
+	CALL :SET_PS2CODE_FROM_GAMEHDLTOC %PS2APP_FOUND% PS2APP
+	CALL :FIND_FILE %hdl_dump_path%APPS\!PS2APP! .KELF KELF_FILE
 
 	IF "!KELF_FILE!"=="" (
 		ECHO.	Kelf file not found
-		ECHO.	Please put it into "%hdl_dump_path%APPS\%PS2APP%\"
+		ECHO.	Please put it into "%hdl_dump_path%APPS\!PS2APP!\"
 		ECHO.	And try again
-		ECHO.	PS2HDDOSDICON.bat %PS2APP% "%PS2APP% is My Favorite PS2 APP"
+		ECHO.	PS2HDDOSDICON.bat app !PS2APP! "!PS2APP! is My Favorite PS2 APP"
 		GOTO :EOF
 	)
 
 	IF NOT "!KELF_FILE!"=="" IF "%~2"=="" (
 		ECHO.	App Name not SET
 		ECHO.	Please insert a name like this
-		ECHO.	PS2HDDOSDICON.bat %PS2APP% "%PS2APP% is My Favorite PS2 APP"
+		ECHO.	PS2HDDOSDICON.bat app !PS2APP! "!PS2APP! is My Favorite PS2 APP"
 		GOTO :EOF
 	)
 	
-	echo CALL :INSERT_ICONS %PS2APP% "%~2"
+	CALL :INSERT_ICONS !PS2APP! "%~2"
+
+) ELSE (
+
+	CALL :LOG_CODE_NOT_FOUND %~1
 
 )	
 GOTO :EOF
@@ -177,7 +180,7 @@ exit /b
 :SET_PS2CODE_FROM_GAMEHDLTOC <HDLGAMETOC> <PS2CODE> <NUMBER_FORMAT>
 FOR /f "tokens=2 delims=." %%e IN ("%~1") DO (
 	IF "%~3"=="" (
-		CALL :FORMAT_PS2CODE %%e %~2 1
+		SET "%~2=%%e" 
 	) ELSE (
 		CALL :FORMAT_PS2CODE %%e %~2 %~3
 	)
@@ -204,14 +207,26 @@ exit /b
 ::-----------------------------------------------------------------------------------------------------------------
 
 :FIND_AND_SET_GAMEICON <PS2CODE>
-CALL :FIND_INFO_FROM_DATABASE !ICONDB! %~1 GAMEDBID GAMEICON
-		
-if "!GAMEDBID!"=="%~1" (
-	copy /Y /V !ICONFOLDER!!GAMEICON! list.ico >nul				
-) else (
-	copy /Y /V !PS2_DEFAULT_GAMEICON! list.ico >nul
-)
+SET GAMEICON=''
+SET GAMEDBID=''
+CALL :FIND_INFO_FROM_DATABASE !ICONDB! %~1 GAMEDBID GAMEICON		
 
+IF EXIST "%hdl_dump_path%APPS\!PS2APP!" (
+	
+	CALL :FIND_FILE "%hdl_dump_path%APPS\!PS2APP!" .ICO GAMEICON
+	
+	IF NOT !GAMEICON!=="" (
+		COPY /Y /V "%hdl_dump_path%APPS\!PS2APP!\!GAMEICON!" list.ico >nul		
+	)	
+	
+) ELSE (
+
+	IF "!GAMEDBID!"=="%~1" (
+		COPY /Y /V !ICONFOLDER!!GAMEICON! list.ico >nul				
+	) ELSE (
+		COPY /Y /V !PS2_DEFAULT_GAMEICON! list.ico >nul
+	)
+)
 GOTO :EOF
 
 ::-----------------------------------------------------------------------------------------------------------------
@@ -226,8 +241,8 @@ exit /b
 
 ::-----------------------------------------------------------------------------------------------------------------
 
-:FIND_KELF_FILE <INPUT_CODE> <RETURN_KELF_FILE>
-FOR /f "tokens=*" %%a in ('dir /b /s "%hdl_dump_path%APPS\%~1\*.kelf"') do SET "%~2=%%~nxa"
+:FIND_FILE <INPUT_PATH> <FILE_TYPE> <RETURN_FILE>
+FOR /f "tokens=*" %%a in ('dir /b /s "%~1\*%~2"') do SET "%~3=%%~nxa"
 
 exit /b
 
