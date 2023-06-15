@@ -12,7 +12,7 @@ CALL :SPLIT_FILE_AND_PATH !hdl_dump! hdl_dump_path hdl_dump_exec
 
 ::-----------------------------------------------------------------------------------------------------------------
 
-SET debug=true
+SET debug=false
 IF "%debug%"=="true" (
 
 	SET PS2HDD=fake_HDD1
@@ -42,17 +42,17 @@ IF NOT "%PS2APP_FOUND%"=="" (
 	CALL :FIND_FILE %hdl_dump_path%APPS\!PS2APP! .KELF KELF_FILE
 
 	IF "!KELF_FILE!"=="" (
-		ECHO.	Kelf file not found
-		ECHO.	Please put it into "%hdl_dump_path%APPS\!PS2APP!\"
-		ECHO.	And try again
-		ECHO.	PS2HDDOSDICON.bat app !PS2APP! "!PS2APP! is My Favorite PS2 APP"
+		ECHO	Kelf file not found
+		ECHO	Please put it into "%hdl_dump_path%APPS\!PS2APP!\"
+		ECHO	And try again
+		ECHO	PS2HDDOSDICON.bat app !PS2APP! "!PS2APP! is My Favorite PS2 APP"
 		GOTO :EOF
 	)
 
 	IF NOT "!KELF_FILE!"=="" IF "%~2"=="" (
-		ECHO.	App Name not SET
-		ECHO.	Please insert a name like this
-		ECHO.	PS2HDDOSDICON.bat app !PS2APP! "!PS2APP! is My Favorite PS2 APP"
+		ECHO	App Name not SET
+		ECHO	Please insert a name like this
+		ECHO	PS2HDDOSDICON.bat app !PS2APP! "!PS2APP! is My Favorite PS2 APP"
 		GOTO :EOF
 	)
 	
@@ -68,9 +68,8 @@ GOTO :EOF
 :INSERT_SINGLE_GAME_ICON_BY_USER_INPUT
 
 	CALL :SET_PS2CODE_FORMAT %~1 PS2CODE_TO_INJECT 2
-	ECHO.
+
 	CALL :FIND_HDL_TOC_GAMES !PS2CODE_TO_INJECT! GAME_FOUND 
-	ECHO.
 
 	IF NOT "%GAME_FOUND%"=="" (
 
@@ -97,10 +96,11 @@ FOR /f "tokens=5 delims= " %%X IN ('%HDLTOC% ^| findstr "PP.!PS2GAMECODE_BY_USER
 SET GAMEHDLTOC=%%X
 SET GAMENAME=""
 
-	CALL :SET_PS2CODE_FROM_GAMEHDLTOC !GAMEHDLTOC! PS2CODE 1
+	CALL :SET_PS2CODE_FROM_GAMEHDLTOC !GAMEHDLTOC! PS2CODE
 
 
 	IF "%PS2GAMENAME_BY_USER_INPUT%"=="" (
+		CALL :FORMAT_PS2CODE !PS2CODE! PS2CODE 1
 
 		CALL :FIND_INFO_FROM_DATABASE !GAMENAMEDB! !PS2CODE! DUMMY_PS2CODE GAMENAME		
 		
@@ -125,7 +125,8 @@ SET GAMENAME=""
 		
 		CALL :INSERT_GAME_ICON !GAMEHDLTOC!
 		
-		ECHO Done		
+		ECHO Done
+		echo.		
 	
 	)
 	
@@ -133,7 +134,6 @@ SET GAMENAME=""
 CALL :REMOVETMPFILES
 ECHO.
 ECHO.
-pause
 GOTO :EOF
 
 ::-----------------------------------------------------------------------------------------------------------------
@@ -148,10 +148,8 @@ GOTO :EOF
 
 ::-----------------------------------------------------------------------------------------------------------------
 
-:LIST_HDL_TOC_GAMES
-ECHO.
-ECHO.	LIST OF ALL GAMES IN HDD
-ECHO.
+:LIST_HDL_TOC_GAMES	
+ECHO	LIST OF ALL GAMES IN HDD
 
 	CALL :FIND_HDL_TOC_GAMES "" DUMMY
 
@@ -162,7 +160,7 @@ GOTO :EOF
 :FIND_HDL_TOC_GAMES <PS2CODE_TO_INJECT> <GAME_FOUND> <RETURN_CODE>
 FOR /f "tokens=5 delims= " %%X IN ('%HDLTOC% ^| findstr /i "PP.%~1"') DO (
 	SET "%~2=%%X"
-	ECHO.	FOUND: %%X
+	ECHO	FOUND: %%X
 )
 exit /b
 
@@ -209,16 +207,25 @@ exit /b
 :FIND_AND_SET_GAMEICON <PS2CODE>
 SET GAMEICON=''
 SET GAMEDBID=''
-CALL :FIND_INFO_FROM_DATABASE !ICONDB! %~1 GAMEDBID GAMEICON		
+CALL :FIND_INFO_FROM_DATABASE !ICONDB! %~1 GAMEDBID GAMEICON	
 
 IF EXIST "%hdl_dump_path%APPS\!PS2APP!" (
 	
 	CALL :FIND_FILE "%hdl_dump_path%APPS\!PS2APP!" .ICO GAMEICON
 	
-	IF NOT !GAMEICON!=="" (
-		COPY /Y /V "%hdl_dump_path%APPS\!PS2APP!\!GAMEICON!" list.ico >nul		
-	)	
 	
+	IF NOT !GAMEICON!=='' (
+		
+		COPY /Y /V "%hdl_dump_path%APPS\!PS2APP!\!GAMEICON!" list.ico >nul		
+
+	) ELSE (
+
+		ECHO Icon not found in "%hdl_dump_path%APPS\!PS2APP!\ 
+		ECHO Using PS2 DEFAULT GAMEICON !PS2_DEFAULT_GAMEICON!
+
+		COPY /Y /V !PS2_DEFAULT_GAMEICON! list.ico >nul
+	)
+
 ) ELSE (
 
 	IF "!GAMEDBID!"=="%~1" (
@@ -242,7 +249,7 @@ exit /b
 ::-----------------------------------------------------------------------------------------------------------------
 
 :FIND_FILE <INPUT_PATH> <FILE_TYPE> <RETURN_FILE>
-FOR /f "tokens=*" %%a in ('dir /b /s "%~1\*%~2"') do SET "%~3=%%~nxa"
+FOR /f "tokens=*" %%a in ('dir /b /s "%~1\*%~2" 2^>nul') do SET "%~3=%%~nxa"
 
 exit /b
 
@@ -251,7 +258,7 @@ exit /b
 :LOG <PS2CODE> <GAMENAME>
 	
 	echo !date! !time:~0,-3! %~1 %~2>> !log!
-	echo.
+
 	echo Inserting...
 	echo NAME: %~2
 	echo CODE: %~1 	
@@ -262,13 +269,13 @@ GOTO :EOF
 :LOG_CODE_NOT_FOUND <INPUT_PS2CODE>
 	
 	CLS
-	ECHO.
-	ECHO.	GAME %~1 NOT FOUND, TRY AGAIN
-	ECHO.
-	ECHO.	How to
-	ECHO.	PS2HDDOSDICON.bat XXXX-00000
-	ECHO.	Or
-	ECHO.	PS2HDDOSDICON.bat XXXX-00000 "My Favorite PS2 Game"
+	ECHO
+	ECHO	GAME %~1 NOT FOUND, TRY AGAIN
+	ECHO
+	ECHO	How to
+	ECHO	PS2HDDOSDICON.bat XXXX-00000
+	ECHO	Or
+	ECHO	PS2HDDOSDICON.bat XXXX-00000 "My Favorite PS2 Game"
 	CALL :LIST_HDL_TOC_GAMES
 
 GOTO :EOF
@@ -280,9 +287,9 @@ FOR /f "tokens=1 delims= " %%a IN ('!hdl_dump! query ^| findstr "formatted Plays
 ::trim tab and trim spaces
 SET PS2HDD=!PS2HDD: =!
 IF "%PS2HDD%"==" =" (
-echo.
-echo. 		Local Hard Drive not Found, Please insert your PS2 IP
-echo.
+ECHO
+ECHO 		Local Hard Drive not Found, Please insert your PS2 IP
+ECHO
 	SET /p "PS2HDD=Insert PS2 IP: "
 )
 GOTO :EOF
