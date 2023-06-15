@@ -21,7 +21,7 @@ IF "%debug%"=="true" (
 ) ELSE (
 
 	CALL :SET_PS2_HDD
-	SET HDLTOC=!hdl_dump! toc %PS2HDD%
+	SET "HDLTOC=!hdl_dump! toc %PS2HDD%"
 )
 
 ::-----------------------------------------------------------------------------------------------------------------
@@ -269,9 +269,7 @@ GOTO :EOF
 :LOG_CODE_NOT_FOUND <INPUT_PS2CODE>
 	
 	CLS
-	ECHO
 	ECHO	GAME %~1 NOT FOUND, TRY AGAIN
-	ECHO
 	ECHO	How to
 	ECHO	PS2HDDOSDICON.bat XXXX-00000
 	ECHO	Or
@@ -283,13 +281,11 @@ GOTO :EOF
 ::-----------------------------------------------------------------------------------------------------------------
 
 :SET_PS2_HDD
-FOR /f "tokens=1 delims= " %%a IN ('!hdl_dump! query ^| findstr "formatted Playstation"') DO SET PS2HDD=%%a
+FOR /f "tokens=1 delims= " %%a IN ('!hdl_dump_path!!hdl_dump_exec! query ^| findstr "formatted Playstation"') DO SET PS2HDD=%%a
 ::trim tab and trim spaces
 SET PS2HDD=!PS2HDD: =!
 IF "%PS2HDD%"==" =" (
-ECHO
 ECHO 		Local Hard Drive not Found, Please insert your PS2 IP
-ECHO
 	SET /p "PS2HDD=Insert PS2 IP: "
 )
 GOTO :EOF
@@ -306,7 +302,6 @@ GOTO :EOF
 (
     SET "%~2=%~dp1"
     SET "%~3=%~nx1"
-    SET "%~1=%~nx1"
     exit /b
 )
 
