@@ -195,6 +195,8 @@ FOR /f "tokens=2 delims=." %%e IN ("%~1") DO (
 
 exit /b
 
+::-----------------------------------------------------------------------------------------------------------------
+
 :FORMAT_PS2CODE <INPUT_PS2CODE> <RETURN_PS2CODE> <NUMBER_FORMAT>
 FOR /F "tokens=1-20 delims=-._=[]{}/?,\|´`" %%a IN ("%1") DO SET CODE=%%a%%b%%c%%d%%e%%f%%g%%h%%i%%j%%k%%l%%m%%n
 
