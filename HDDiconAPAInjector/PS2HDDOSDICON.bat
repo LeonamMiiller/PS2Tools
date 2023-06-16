@@ -34,6 +34,7 @@ IF  NOT "%~1"==""			IF NOT "%~1"=="app"		GOTO :INSERT_SINGLE_GAME_ICON_BY_USER_I
 GOTO :EOF
 
 ::-----------------------------------------------------------------------------------------------------------------
+
 :INSERT_SINGLE_APP_ICON_BY_USER_INPUT <APP_CODE> <APP_NAME>
 CALL :FIND_HDL_TOC_GAMES %~1 PS2APP_FOUND
 
@@ -71,6 +72,8 @@ IF NOT "%PS2APP_FOUND%"=="" (
 
 )	
 GOTO :EOF
+
+::-----------------------------------------------------------------------------------------------------------------
 
 :INSERT_SINGLE_GAME_ICON_BY_USER_INPUT
 
@@ -121,7 +124,7 @@ SET GAMENAME=""
 	
 		CALL :REMOVETMPFILES
 		
-		CALL :MAKESYSTEMCNF "!BOOT_KELF!"
+		CALL :MAKESYSTEMCNF "!KELF_FILE!"
 		
 		CALL :MAKEICONSYS "!GAMENAME!" "!PS2CODE!" 
 		
