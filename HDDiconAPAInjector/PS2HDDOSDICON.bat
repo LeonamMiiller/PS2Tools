@@ -12,7 +12,7 @@ CALL :SPLIT_FILE_AND_PATH !hdl_dump! hdl_dump_path hdl_dump_exec
 
 ::-----------------------------------------------------------------------------------------------------------------
 
-SET debug=false
+SET debug=true
 IF "%debug%"=="true" (
 
 	SET PS2HDD=fake_HDD1
@@ -106,10 +106,10 @@ SET GAMENAME=""
 
 	CALL :SET_PS2CODE_FROM_GAMEHDLTOC !GAMEHDLTOC! PS2CODE
 
+	IF "!KELF_FILE!"=="" CALL :FORMAT_PS2CODE !PS2CODE! PS2CODE 1
+	
 
-	IF "%PS2GAMENAME_BY_USER_INPUT%"=="" (
-
-		CALL :FORMAT_PS2CODE !PS2CODE! PS2CODE 1
+	IF "%PS2GAMENAME_BY_USER_INPUT%"=="" (		
 
 		CALL :FIND_INFO_FROM_DATABASE !GAMENAMEDB! !PS2CODE! DUMMY_PS2CODE GAMENAME		
 		
@@ -183,7 +183,7 @@ exit /b
 ::-----------------------------------------------------------------------------------------------------------------
 
 :SET_PS2CODE_FROM_GAMEHDLTOC <HDLGAMETOC> <PS2CODE> <NUMBER_FORMAT>
-FOR /f "tokens=2 delims=." %%e IN ("%~1") DO (
+FOR /F "tokens=2 delims=." %%e IN ("%~1") DO (
 
 	IF "%~3"=="" (
 		SET "%~2=%%e" 
