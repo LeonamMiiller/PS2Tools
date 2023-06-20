@@ -12,7 +12,7 @@ CALL :SPLIT_FILE_AND_PATH !hdl_dump! hdl_dump_path hdl_dump_exec
 
 ::-----------------------------------------------------------------------------------------------------------------
 
-SET debug=true
+SET debug=false
 IF "%debug%"=="true" (
 
 	SET PS2HDD=fake_HDD1
@@ -39,6 +39,7 @@ GOTO :EOF
 CALL :FIND_HDL_TOC_GAMES %~1 PS2APP_FOUND
 
 IF NOT "%PS2APP_FOUND%"=="" (	
+
 	CALL :SET_PS2CODE_FROM_GAMEHDLTOC %PS2APP_FOUND% PS2APP
 
 	SET APPFOLDER="%hdl_dump_path%APPS\!PS2APP!\"
